@@ -37,15 +37,14 @@ services:
 			- postgres
 
 	postgres:
-		image: postgres:14-alpine
+		build:
+			context: .
+			dockerfile: ./apps/database/Dockerfile
 		ports:
 			- "5432:5432"
-		environment:
-			POSTGRES_USER: postgres
-			POSTGRES_PASSWORD: postgres
-			POSTGRES_DB: pocker_game
 		volumes:
 			- postgres_data:/var/lib/postgresql/data
+
 
 volumes:
 	postgres_data:
