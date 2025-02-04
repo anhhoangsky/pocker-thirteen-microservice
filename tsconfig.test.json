@@ -1,0 +1,13 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"types": ["jest", "node"],
+		"allowJs": true
+	},
+	"include": [
+		"src/**/*",
+		"apps/**/*",
+		"test/**/*",
+		"jest.setup.js"
+	]
+}

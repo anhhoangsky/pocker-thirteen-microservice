@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+	telegram-bot:
+		build:
+			context: .
+			dockerfile: ./apps/telegram-bot/Dockerfile
+		ports:
+			- "3001:3001"
+		env_file:
+			- .env
+		depends_on:
+			- postgres
+			- game-management
+			- financial-management
+
+	game-management:
+		build:
+			context: .
+			dockerfile: ./apps/game-management/Dockerfile
+		ports:
+			- "3002:3002"
+		env_file:
+			- .env
+		depends_on:
+			- postgres
+
+	financial-management:
+		build:
+			context: .
+			dockerfile: ./apps/financial-management/Dockerfile
+		ports:
+			- "3003:3003"
+		env_file:
+			- .env
+		depends_on:
+			- postgres
+
+	postgres:
+		image: postgres:14-alpine
+		ports:
+			- "5432:5432"
+		environment:
+			POSTGRES_USER: postgres
+			POSTGRES_PASSWORD: postgres
+			POSTGRES_DB: pocker_game
+		volumes:
+			- postgres_data:/var/lib/postgresql/data
+
+volumes:
+	postgres_data:
