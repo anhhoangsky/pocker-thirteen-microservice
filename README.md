@@ -27,10 +27,11 @@ The system is built using NestJS and follows a microservices architecture with t
 
 - Game Management
 
-  - Create new game sessions (Poker or Tiến Lên)
-  - Add players to games
-  - Automatic scoring system
-  - Game history tracking
+- Create new game sessions (Poker or Tiến Lên)
+- Add players to games
+- Automatic scoring system with point validation
+- Game history tracking
+- Score validation against player's current balance
 
 - Financial Management
   - Automatic point-to-money conversion
@@ -171,9 +172,49 @@ describe('SomeService', () => {
 4. Push to the branch
 5. Create a Pull Request
 
+## Improvements & Future Development
+
+### Mobile Application
+- Developing a new Flutter-based mobile application service
+- Providing native mobile experience for score recording
+- Reducing dependency on Telegram platform
+- Real-time game updates and notifications
+
+### Technical Improvements
+- Implementing Dapr as a sidecar container/process
+- Enhanced microservices communication through Dapr's API (gRPC/HTTP)
+- Improved service discovery and resilience
+- For detailed information about Dapr implementation, see [Dapr Integration Guide](docs/dapr-integration.md)
+
+### Reporting System
+- Enhanced financial reporting capabilities
+- Detailed game statistics and analytics
+- Custom report generation
+- Export functionality for reports
+
+### Web3 Integration
+- Smart contract development for game transactions
+    - Player balances stored on blockchain
+    - Automatic payouts using smart contracts
+    - Transaction history on-chain
+- Integration with popular wallets (MetaMask, WalletConnect)
+- Support for multiple blockchains
+    - Ethereum
+    - Binance Smart Chain
+    - Layer 2 solutions (Polygon, Arbitrum)
+- NFT implementation
+    - Special achievements as NFTs
+    - Player rankings and statistics as NFTs
+    - Exclusive game access tokens
+- Token economy
+    - Native game token for transactions
+    - Staking and rewards system
+    - Governance token for community decisions
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
 
 
 
