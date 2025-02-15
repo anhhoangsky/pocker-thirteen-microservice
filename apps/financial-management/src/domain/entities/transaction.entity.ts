@@ -14,7 +14,7 @@ export enum TransactionType {
   FUND_WITHDRAWAL = 'fund_withdrawal',
 }
 
-@Entity()
+@Entity('transactions')
 export class Transaction {
   @PrimaryGeneratedColumn('uuid')
   id: string;

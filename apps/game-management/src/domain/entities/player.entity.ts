@@ -9,7 +9,7 @@ import {
 import { GameScore } from './game-score.entity';
 import { Game } from './game.entity';
 
-@Entity('player')
+@Entity('players')
 export class Player {
   @PrimaryGeneratedColumn('uuid')
   id!: string;

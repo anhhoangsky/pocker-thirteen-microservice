@@ -67,20 +67,21 @@ export class TelegramBotService implements OnModuleInit {
         userId: ctx.from.id,
         stack: error.stack
       });
-      ctx.reply('Failed to create new game. Please try again.');
+      ctx.reply(error.message || 'Failed to create new game. Please try again.');
     }
   }
 
   private handleHelp = (ctx: any): void => {
     this.logger.debug(`Help command received from user ${ctx.from.id}`);
     const helpText = `
-  Available commands:
-  /newgame [poker|tienlen] - Start a new game
-  /join - Join the active game
-  /score [points] [rank?] - Record your score for the active game
-  /viewscore - View total scores of all players
-  /balance - Check your balance
-  /report [daily|weekly|monthly] - View financial report
+Available commands:
+/newgame [poker|tienlen] - Start a new game
+/join - Join the active game
+/score [points] [rank?] - Record your score for the active game
+/viewscore - View total scores of all players
+/currentround - View current round scores
+/balance - Check your balance
+/report [daily|weekly|monthly] - View financial report
     `;
     ctx.reply(helpText);
   }
@@ -108,7 +109,7 @@ export class TelegramBotService implements OnModuleInit {
         error,
         userId: ctx.from.id
       });
-      ctx.reply('Failed to get scores. Please check if there is an active game.');
+      ctx.reply(error.message || 'Failed to get scores. Please check if there is an active game.');
     }
   }
 
@@ -132,7 +133,7 @@ export class TelegramBotService implements OnModuleInit {
         error,
         userId: ctx.from.id
       });
-      ctx.reply('Failed to join game. Please check if there is an active game.');
+      ctx.reply(error.message || 'Failed to join game. Please check if there is an active game.');
     }
   }
 
@@ -183,7 +184,7 @@ export class TelegramBotService implements OnModuleInit {
         error,
         userId: ctx.from.id
       });
-      ctx.reply('Failed to get balance. Please try again.');
+      ctx.reply(error.message || 'Failed to get balance. Please try again.');
     }
   }
 
@@ -208,7 +209,34 @@ export class TelegramBotService implements OnModuleInit {
         reportType,
         userId: ctx.from.id
       });
-      ctx.reply('Failed to generate report. Please try again.');
+      ctx.reply(error.message || 'Failed to generate report. Please try again.');
+    }
+  }
+
+  private handleCurrentRound = async (ctx: any): Promise<void> => {
+    this.logger.debug(`Current round scores command received from user ${ctx.from.id}`);
+
+    try {
+      const result = await this.gameService
+        .send({ cmd: 'get_current_round' }, {})
+        .toPromise();
+      
+      if (!result.scores.length) {
+        ctx.reply('No scores recorded in current round yet.');
+        return;
+      }
+
+      const scoresMessage = result.scores
+        .map((score, index) => `${index + 1}. ${score.playerName}: ${score.points} points`)
+        .join('\n');
+      
+      ctx.reply(`Current round scores:\n${scoresMessage}`);
+    } catch (error) {
+      this.logger.error('Failed to get current round scores:', {
+        error,
+        userId: ctx.from.id
+      });
+      ctx.reply(error.message || 'Failed to get current round scores. Please check if there is an active game.');
     }
   }
 
@@ -220,6 +248,7 @@ export class TelegramBotService implements OnModuleInit {
     this.bot.command('join', this.handleJoin);
     this.bot.command('score', this.handleScore);
     this.bot.command('viewscore', this.handleViewScore);
+    this.bot.command('currentround', this.handleCurrentRound);
     // this.bot.command('balance', this.handleBalance);
     // this.bot.command('report', this.handleReport);
   }

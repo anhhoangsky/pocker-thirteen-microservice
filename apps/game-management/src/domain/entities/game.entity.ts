@@ -10,13 +10,14 @@ import {
 import { GameScore } from './game-score.entity';
 import { Player } from './player.entity';
 import { Round } from './round.entity';
+import { GameMetadata } from '../interfaces/game-metadata.interface';
 
 export enum GameType {
   POKER = 'poker',
   TIENLEN = 'tienlen',
 }
 
-@Entity()
+@Entity('games')
 export class Game {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
@@ -57,12 +58,9 @@ export class Game {
   scores!: GameScore[];
 
   @Column({ type: 'json', nullable: true })
-  metadata?: {
-    initialPoints?: number;
-    pointValue?: number;
-    maxPlayers?: number;
-  };
+  metadata?: GameMetadata;
 
   @Column({ type: 'int', default: 1 })
   currentRoundNumber!: number;
 }
+

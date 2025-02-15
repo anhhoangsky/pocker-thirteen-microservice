@@ -13,7 +13,7 @@ import { Game } from './game.entity';
 import { Player } from './player.entity';
 import { Round } from './round.entity';
 
-@Entity('game_score' as EntityOptions)
+@Entity('game_scores')
 export class GameScore {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
