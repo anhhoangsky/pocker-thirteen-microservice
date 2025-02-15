@@ -8,11 +8,10 @@ COPY nest-cli.json ./
 
 RUN npm install
 
-COPY apps/game-management ./apps/game-management
-COPY libs ./libs
+COPY . .
 
 RUN npm run build game-management
 
 EXPOSE 3002
 
-CMD ["npm", "run", "start:prod", "game-management"]
+CMD ["node", "dist/apps/game-management/main"]

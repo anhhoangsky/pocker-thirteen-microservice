@@ -4,8 +4,10 @@ import {
   Column,
   CreateDateColumn,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 import { GameScore } from './game-score.entity';
+import { Game } from './game.entity';
 
 @Entity('player')
 export class Player {
@@ -31,6 +33,9 @@ export class Player {
     lazy: true,
   })
   scores!: Promise<GameScore[]>;
+
+  @ManyToMany(() => Game, (game) => game.players)
+  games!: Game[];
 
   @Column({ type: 'jsonb', nullable: true })
   preferences?: {

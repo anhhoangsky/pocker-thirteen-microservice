@@ -52,7 +52,7 @@ The system is built using NestJS and follows a microservices architecture with t
    ```bash
    # Clone the repository
    git clone <repository-url>
-   cd pocker-app
+   cd pocker-thirteen-microservice
 
    # Install dependencies
    npm install
@@ -91,6 +91,10 @@ The system is built using NestJS and follows a microservices architecture with t
 - `/score [points]` - Record score
 - `/balance` - Check balance
 - `/report [daily|weekly|monthly]` - View financial report
+
+## Bot Setup Guide
+
+Chi tiết về cách tạo và cấu hình bot Telegram [Hướng dẫn thiết lập Bot](docs/telegram-bot-setup.md).
 
 ## Database Schema
 

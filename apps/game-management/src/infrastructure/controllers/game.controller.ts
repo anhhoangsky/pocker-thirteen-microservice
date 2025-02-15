@@ -2,6 +2,8 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { GameService } from '../../application/services/game.service';
 import { GameType } from '../../domain/entities/game.entity';
+import { PlayerScore } from '../../domain/interfaces/player-score.interface';
+
 
 @Controller()
 export class GameController {
@@ -20,19 +22,34 @@ export class GameController {
   }
 
   @MessagePattern({ cmd: 'join_game' })
-  async joinGame(@Payload() data: { gameId: string; playerId: string }) {
-    return this.gameService.addPlayerToGame(data.gameId, data.playerId);
+  async joinGame(
+    @Payload() data: { 
+      playerId: string;
+      playerInfo?: {
+        username: string;
+        displayName?: string;
+      }
+    }
+  ) {
+    return this.gameService.addPlayerToGame(data.playerId, data.playerInfo);
   }
 
   @MessagePattern({ cmd: 'record_score' })
   async recordScore(
-    @Payload() data: { gameId: string; playerId: string; points: number; rank?: number },
-  ) {
-    return this.gameService.recordScore(data.gameId, data.playerId, data.points, data.rank);
+    @Payload() data: { playerId: string; points: number; rank?: number },
+  ): Promise<{ playerScores: PlayerScore[] }> {
+    return this.gameService.recordScore(data.playerId, data.points, data.rank);
   }
 
   @MessagePattern({ cmd: 'end_game' })
-  async endGame(@Payload() data: { gameId: string }) {
-    return this.gameService.endGame(data.gameId);
+  async endGame() {
+    return this.gameService.endGame();
   }
+
+  @MessagePattern({ cmd: 'get_total_scores' })
+  async getTotalScores(): Promise<{ playerScores: PlayerScore[] }> {
+    const scores = await this.gameService.getTotalScores();
+    return { playerScores: scores };
+  }
+
 }

@@ -1,50 +1,53 @@
-version: '3.8'
+version: "3.8"
 
 services:
-	telegram-bot:
-		build:
-			context: .
-			dockerfile: ./apps/telegram-bot/Dockerfile
-		ports:
-			- "3001:3001"
-		env_file:
-			- .env
-		depends_on:
-			- postgres
-			- game-management
-			- financial-management
+  telegram-bot:
+    build:
+      context: .
+      dockerfile: ./apps/telegram-bot/Dockerfile
+    ports:
+      - "${TELEGRAM_BOT_PORT}:${TELEGRAM_BOT_PORT}"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - game-management
+      - financial-management
 
-	game-management:
-		build:
-			context: .
-			dockerfile: ./apps/game-management/Dockerfile
-		ports:
-			- "3002:3002"
-		env_file:
-			- .env
-		depends_on:
-			- postgres
+  game-management:
+    build:
+      context: .
+      dockerfile: ./apps/game-management/Dockerfile
+    ports:
+      - "${GAME_SERVICE_PORT}:${GAME_SERVICE_PORT}"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
 
-	financial-management:
-		build:
-			context: .
-			dockerfile: ./apps/financial-management/Dockerfile
-		ports:
-			- "3003:3003"
-		env_file:
-			- .env
-		depends_on:
-			- postgres
+  financial-management:
+    build:
+      context: .
+      dockerfile: ./apps/financial-management/Dockerfile
+    ports:
+      - "${FINANCIAL_SERVICE_PORT}:${FINANCIAL_SERVICE_PORT}"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
 
-	postgres:
-		build:
-			context: .
-			dockerfile: ./apps/database/Dockerfile
-		ports:
-			- "5432:5432"
-		volumes:
-			- postgres_data:/var/lib/postgresql/data
-
+  postgres:
+    build:
+      context: ./apps/database
+      dockerfile: Dockerfile
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${DB_POSTGRES}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
-	postgres_data:
+  postgres_data:

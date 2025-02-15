@@ -6,7 +6,7 @@ ENV POSTGRES_PASSWORD=postgres
 ENV POSTGRES_DB=pocker_game
 
 # Copy script khởi tạo database
-COPY ./init.sql /docker-entrypoint-initdb.d/
+COPY init.sql /docker-entrypoint-initdb.d/
 
 # Expose port 5432
 EXPOSE 5432
