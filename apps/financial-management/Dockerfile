@@ -8,11 +8,10 @@ COPY nest-cli.json ./
 
 RUN npm install
 
-COPY apps/financial-management ./apps/financial-management
-COPY libs ./libs
+COPY . .
 
 RUN npm run build financial-management
 
 EXPOSE 3003
 
-CMD ["npm", "run", "start:prod", "financial-management"]
+CMD ["node", "dist/apps/financial-management/main"]

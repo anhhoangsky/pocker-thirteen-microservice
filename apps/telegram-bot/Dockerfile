@@ -8,11 +8,10 @@ COPY nest-cli.json ./
 
 RUN npm install
 
-COPY apps/telegram-bot ./apps/telegram-bot
-COPY libs ./libs
+COPY . .
 
 RUN npm run build telegram-bot
 
 EXPOSE 3001
 
-CMD ["npm", "run", "start:prod", "telegram-bot"]
+CMD ["node", "dist/apps/telegram-bot/main"]

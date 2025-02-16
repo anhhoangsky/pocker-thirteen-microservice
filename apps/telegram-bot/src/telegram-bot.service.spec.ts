@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { TelegramBotService } from './telegram-bot.service';
 import { Telegraf } from 'telegraf';
+import { FINANCIAL_SERVICE, GAME_SERVICE } from './constants';
 
 jest.mock('telegraf', () => {
 	return {
@@ -45,11 +46,11 @@ describe('TelegramBotService', () => {
 										useValue: mockConfigService
 								},
 								{
-										provide: 'GAME_SERVICE',
+										provide: GAME_SERVICE,
 										useValue: mockGameService
 								},
 								{
-										provide: 'FINANCIAL_SERVICE',
+										provide: FINANCIAL_SERVICE,
 										useValue: mockFinancialService
 								}
 						]

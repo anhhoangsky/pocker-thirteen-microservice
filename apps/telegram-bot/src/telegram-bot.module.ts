@@ -1,26 +1,27 @@
 import { Module } from '@nestjs/common';
-import { TelegramBotService } from './telegram-bot.service';
 import { ConfigModule } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { TelegramBotService } from './telegram-bot.service';
+import { FINANCIAL_SERVICE, GAME_SERVICE } from './constants';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     ClientsModule.register([
       {
-        name: 'GAME_SERVICE',
+        name: GAME_SERVICE,
         transport: Transport.TCP,
         options: {
-          host: 'localhost',
-          port: 3002,
+          host: process.env.GAME_SERVICE_HOST || 'localhost',
+          port: parseInt(process.env.GAME_SERVICE_PORT) || 3001,
         },
       },
       {
-        name: 'FINANCIAL_SERVICE',
+        name: FINANCIAL_SERVICE,
         transport: Transport.TCP,
         options: {
-          host: 'localhost',
-          port: 3003,
+          host: process.env.FINANCIAL_SERVICE_HOST || 'localhost',
+          port: parseInt(process.env.FINANCIAL_SERVICE_PORT) || 3002,
         },
       },
     ]),
@@ -28,3 +29,4 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
   providers: [TelegramBotService],
 })
 export class TelegramBotModule {}
+

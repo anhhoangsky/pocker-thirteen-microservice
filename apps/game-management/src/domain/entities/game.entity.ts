@@ -9,13 +9,15 @@ import {
 } from 'typeorm';
 import { GameScore } from './game-score.entity';
 import { Player } from './player.entity';
+import { Round } from './round.entity';
+import { GameMetadata } from '../interfaces/game-metadata.interface';
 
 export enum GameType {
   POKER = 'poker',
   TIENLEN = 'tienlen',
 }
 
-@Entity()
+@Entity('games')
 export class Game {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
@@ -35,17 +37,30 @@ export class Game {
   @Column({ nullable: true })
   endedAt?: Date;
 
-  @ManyToMany(() => Player, { eager: false })
-  @JoinTable()
+  @ManyToMany(() => Player, (player) => player.games)
+  @JoinTable({
+    name: 'game_players',
+    joinColumn: {
+      name: 'game_id',
+      referencedColumnName: 'id'
+    },
+    inverseJoinColumn: {
+      name: 'player_id',
+      referencedColumnName: 'id'
+    }
+  })
   players!: Player[];
 
-  @OneToMany(() => GameScore, (score: GameScore): Game => score.game)
+  @OneToMany(() => Round, (round) => round.game)
+  rounds!: Round[];
+
+  @OneToMany(() => GameScore, (score) => score.game)
   scores!: GameScore[];
 
-  @Column({ type: 'jsonb', nullable: true })
-  metadata?: {
-    initialPoints?: number;
-    pointValue?: number;
-    maxPlayers?: number;
-  };
+  @Column({ type: 'json', nullable: true })
+  metadata?: GameMetadata;
+
+  @Column({ type: 'int', default: 1 })
+  currentRoundNumber!: number;
 }
+
