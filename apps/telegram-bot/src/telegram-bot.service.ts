@@ -217,9 +217,7 @@ Available commands:
     this.logger.debug(`Current round scores command received from user ${ctx.from.id}`);
 
     try {
-      const result = await this.gameService
-        .send({ cmd: 'get_current_round' }, {})
-        .toPromise();
+      const result = await this.getCurrentRoundWithDapr();
       
       if (!result.scores.length) {
         ctx.reply('No scores recorded in current round yet.');
@@ -249,7 +247,7 @@ Available commands:
     this.bot.command('score', this.handleScore);
     this.bot.command('viewscore', this.handleViewScore);
     this.bot.command('currentround', this.handleCurrentRound);
-    // this.bot.command('balance', this.handleBalance);
-    // this.bot.command('report', this.handleReport);
+    this.bot.command('balance', this.handleBalance);
+    this.bot.command('report', this.handleReport);
   }
 }

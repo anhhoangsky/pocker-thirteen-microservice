@@ -12,6 +12,7 @@ import { Round } from './domain/entities/round.entity';
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    DaprModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
         host: process.env.POSTGRES_HOST || 'postgres',
