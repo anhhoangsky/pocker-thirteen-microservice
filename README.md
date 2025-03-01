@@ -47,6 +47,7 @@ The system is built using NestJS and follows a microservices architecture with t
    - Docker and Docker Compose
    - PostgreSQL
    - Telegram Bot Token
+   - Flutter SDK (v2.19.0+ for mobile app development)
 
 2. Environment Setup
 
@@ -70,6 +71,7 @@ The system is built using NestJS and follows a microservices architecture with t
    npm run start:telegram-bot
    npm run start:game-management
    npm run start:financial-management
+   npm run start:api
    ```
 
 4. Docker Deployment
@@ -81,6 +83,10 @@ The system is built using NestJS and follows a microservices architecture with t
    # Stop services
    npm run docker:down
    ```
+
+5. Mobile App
+
+   For detailed instructions on building and running the mobile app, see the [Mobile App README](apps/mobile-app/README.md).
 
 ## API Documentation
 
@@ -174,11 +180,12 @@ describe('SomeService', () => {
 
 ## Improvements & Future Development
 
-### Mobile Application
-- Developing a new Flutter-based mobile application service
-- Providing native mobile experience for score recording
-- Reducing dependency on Telegram platform
-- Real-time game updates and notifications
+### Mobile Application ✅
+- ✅ Flutter-based mobile application service implemented
+- ✅ Native mobile experience for game management and score recording
+- ✅ Authentication and user management
+- ✅ Real-time game updates and financial tracking
+- For detailed information, see the [Mobile App README](apps/mobile-app/README.md) and [Mobile App Setup Guide](docs/mobile-app-setup.md)
 
 ### Technical Improvements
 - Implementing Dapr as a sidecar container/process
@@ -214,7 +221,3 @@ describe('SomeService', () => {
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-
-
-
