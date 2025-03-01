@@ -52,4 +52,41 @@ export class GameController {
     return { playerScores: scores };
   }
 
+  // New endpoints for reporting system
+  @MessagePattern({ cmd: 'get_game_statistics' })
+  async getGameStatistics(
+    @Payload() data: { 
+      startDate?: string; 
+      endDate?: string; 
+      gameType?: string;
+      playerId?: string;
+    },
+  ) {
+    return this.gameService.getGameStatistics(
+      data.startDate ? new Date(data.startDate) : undefined,
+      data.endDate ? new Date(data.endDate) : undefined,
+      data.gameType,
+      data.playerId,
+    );
+  }
+
+  @MessagePattern({ cmd: 'get_player_statistics' })
+  async getPlayerStatistics(
+    @Payload() data: { 
+      playerId: string; 
+      startDate?: string; 
+      endDate?: string;
+    },
+  ) {
+    return this.gameService.getPlayerStatistics(
+      data.playerId,
+      data.startDate ? new Date(data.startDate) : undefined,
+      data.endDate ? new Date(data.endDate) : undefined,
+    );
+  }
+
+  @MessagePattern({ cmd: 'get_game_details' })
+  async getGameDetails(@Payload() data: { gameId: string }) {
+    return this.gameService.getGameDetails(data.gameId);
+  }
 }

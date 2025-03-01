@@ -36,6 +36,21 @@ services:
     depends_on:
       - postgres
 
+  reporting-system:
+    build:
+      context: .
+      dockerfile: ./apps/reporting-system/Dockerfile
+    ports:
+      - "${REPORTING_SERVICE_PORT}:${REPORTING_SERVICE_PORT}"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - game-management
+      - financial-management
+    volumes:
+      - ./reports:/app/reports
+
   postgres:
     build:
       context: ./apps/database

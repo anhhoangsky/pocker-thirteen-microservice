@@ -41,4 +41,43 @@ export class FinancialController {
   async createFund(@Payload() data: { name: string; metadata?: any }) {
     return this.financialService.createFund(data.name, data.metadata);
   }
+
+  // New endpoints for reporting system
+  @MessagePattern({ cmd: 'get_financial_report' })
+  async getFinancialReport(
+    @Payload() data: { startDate: string; endDate: string; playerId?: string },
+  ) {
+    return this.financialService.getFinancialReport(
+      new Date(data.startDate),
+      new Date(data.endDate),
+      data.playerId,
+    );
+  }
+
+  @MessagePattern({ cmd: 'get_player_transactions' })
+  async getPlayerTransactions(
+    @Payload() data: { playerId: string; startDate?: string; endDate?: string },
+  ) {
+    return this.financialService.getPlayerTransactions(
+      data.playerId,
+      data.startDate ? new Date(data.startDate) : undefined,
+      data.endDate ? new Date(data.endDate) : undefined,
+    );
+  }
+
+  @MessagePattern({ cmd: 'get_funds' })
+  async getFunds() {
+    return this.financialService.getFunds();
+  }
+
+  @MessagePattern({ cmd: 'get_fund_transactions' })
+  async getFundTransactions(
+    @Payload() data: { fundId: string; startDate?: string; endDate?: string },
+  ) {
+    return this.financialService.getFundTransactions(
+      data.fundId,
+      data.startDate ? new Date(data.startDate) : undefined,
+      data.endDate ? new Date(data.endDate) : undefined,
+    );
+  }
 }

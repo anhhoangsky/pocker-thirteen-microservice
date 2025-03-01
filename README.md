@@ -186,12 +186,6 @@ describe('SomeService', () => {
 - Improved service discovery and resilience
 - For detailed information about Dapr implementation, see [Dapr Integration Guide](docs/dapr-integration.md)
 
-### Reporting System
-- Enhanced financial reporting capabilities
-- Detailed game statistics and analytics
-- Custom report generation
-- Export functionality for reports
-
 ### Web3 Integration
 - Smart contract development for game transactions
     - Player balances stored on blockchain
@@ -214,7 +208,5 @@ describe('SomeService', () => {
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-
 
 
