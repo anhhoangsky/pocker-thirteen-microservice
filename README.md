@@ -181,10 +181,9 @@ describe('SomeService', () => {
 - Real-time game updates and notifications
 
 ### Technical Improvements
-- Implementing Dapr as a sidecar container/process
-- Enhanced microservices communication through Dapr's API (gRPC/HTTP)
-- Improved service discovery and resilience
-- For detailed information about Dapr implementation, see [Dapr Integration Guide](docs/dapr-integration.md)
+- Enhanced service discovery and resilience
+- Implementing additional Dapr building blocks
+- Scaling and performance optimizations
 
 ### Reporting System
 - Enhanced financial reporting capabilities
@@ -214,7 +213,5 @@ describe('SomeService', () => {
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-
 
 

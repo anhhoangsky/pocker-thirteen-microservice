@@ -13,6 +13,12 @@ services:
       - postgres
       - game-management
       - financial-management
+      - redis
+    labels:
+      - "dapr.io/enabled=true"
+      - "dapr.io/app-id=telegram-bot"
+      - "dapr.io/app-port=${TELEGRAM_BOT_PORT}"
+      - "dapr.io/enable-api-logging=true"
 
   game-management:
     build:
@@ -24,6 +30,12 @@ services:
       - .env
     depends_on:
       - postgres
+      - redis
+    labels:
+      - "dapr.io/enabled=true"
+      - "dapr.io/app-id=game-management"
+      - "dapr.io/app-port=${GAME_SERVICE_PORT}"
+      - "dapr.io/enable-api-logging=true"
 
   financial-management:
     build:
@@ -35,6 +47,12 @@ services:
       - .env
     depends_on:
       - postgres
+      - redis
+    labels:
+      - "dapr.io/enabled=true"
+      - "dapr.io/app-id=financial-management"
+      - "dapr.io/app-port=${FINANCIAL_SERVICE_PORT}"
+      - "dapr.io/enable-api-logging=true"
 
   postgres:
     build:
@@ -49,5 +67,19 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  dapr-placement:
+    image: daprio/dapr:latest
+    command: ["./placement", "-port", "50006"]
+    ports:
+      - "50006:50006"
+
 volumes:
   postgres_data:
+  redis_data:

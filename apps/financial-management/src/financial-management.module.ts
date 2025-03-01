@@ -10,6 +10,7 @@ import { FinancialRepository } from './infrastructure/repositories/financial.rep
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    DaprModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.POSTGRES_HOST || 'localhost',
