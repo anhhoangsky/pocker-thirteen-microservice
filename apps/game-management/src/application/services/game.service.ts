@@ -454,5 +454,286 @@ export class GameService {
       };
     }
   }
-}
 
+  // New methods for reporting system
+  async getGameStatistics(
+    startDate?: Date,
+    endDate?: Date,
+    gameType?: string,
+    playerId?: string,
+  ): Promise<{
+    totalGames: number;
+    activeGames: number;
+    completedGames: number;
+    gamesByType: Record<string, number>;
+    games: Game[];
+    playerStats?: {
+      totalPlayers: number;
+      topPlayers: Array<{ playerId: string; playerName: string; gamesPlayed: number; totalPoints: number }>;
+    };
+  }> {
+    const whereClause: any = {};
+    
+    if (startDate && endDate) {
+      whereClause.createdAt = Between(startDate, endDate);
+    }
+    
+    if (gameType) {
+      whereClause.type = gameType;
+    }
+    
+    let games = await this.gameRepository.find({
+      where: whereClause,
+      relations: ['players', 'scores', 'scores.player'],
+      order: { createdAt: 'DESC' },
+    });
+    
+    // Filter by player if specified
+    if (playerId) {
+      games = games.filter(game => 
+        game.players.some(player => player.telegramId === playerId)
+      );
+    }
+    
+    // Count games by type
+    const gamesByType: Record<string, number> = {};
+    games.forEach(game => {
+      const type = game.type;
+      gamesByType[type] = (gamesByType[type] || 0) + 1;
+    });
+    
+    // Get player statistics if no specific player is requested
+    let playerStats;
+    if (!playerId) {
+      const allPlayers = await this.playerRepository.find();
+      
+      // Calculate player statistics
+      const playerScoreMap = new Map<string, { 
+        playerId: string; 
+        playerName: string; 
+        gamesPlayed: number; 
+        totalPoints: number;
+      }>();
+      
+      for (const game of games) {
+        for (const score of game.scores) {
+          const playerId = score.player.telegramId;
+          const playerName = score.player.displayName || score.player.username;
+          
+          if (!playerScoreMap.has(playerId)) {
+            playerScoreMap.set(playerId, {
+              playerId,
+              playerName,
+              gamesPlayed: 0,
+              totalPoints: 0,
+            });
+          }
+          
+          const playerData = playerScoreMap.get(playerId);
+          playerData.totalPoints += Number(score.points);
+          
+          // Count unique games
+          const isNewGame = !playerData.gamesPlayed || 
+            !game.scores.some(s => 
+              s.player.telegramId === playerId && 
+              s.gameId !== game.id
+            );
+          
+          if (isNewGame) {
+            playerData.gamesPlayed += 1;
+          }
+        }
+      }
+      
+      // Sort players by total points
+      const topPlayers = Array.from(playerScoreMap.values())
+        .sort((a, b) => b.totalPoints - a.totalPoints)
+        .slice(0, 10);
+      
+      playerStats = {
+        totalPlayers: allPlayers.length,
+        topPlayers,
+      };
+    }
+    
+    return {
+      totalGames: games.length,
+      activeGames: games.filter(game => game.isActive).length,
+      completedGames: games.filter(game => !game.isActive).length,
+      gamesByType,
+      games,
+      playerStats,
+    };
+  }
+
+  async getPlayerStatistics(
+    playerId: string,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<{
+    player: Player;
+    totalGames: number;
+    gamesWon: number;
+    gamesLost: number;
+    winRate: number;
+    totalPoints: number;
+    averagePointsPerGame: number;
+    gameHistory: Array<{
+      gameId: string;
+      gameType: string;
+      date: Date;
+      points: number;
+      position?: number;
+      result: 'win' | 'loss' | 'draw';
+    }>;
+  }> {
+    const player = await this.playerRepository.findOne({
+      where: { telegramId: playerId },
+    });
+    
+    if (!player) {
+      throw new Error('Player not found');
+    }
+    
+    // Get all games the player participated in
+    const whereClause: any = {};
+    
+    if (startDate && endDate) {
+      whereClause.createdAt = Between(startDate, endDate);
+    }
+    
+    const games = await this.gameRepository.find({
+      relations: ['scores', 'scores.player'],
+    });
+    
+    // Filter games where the player participated
+    const playerGames = games.filter(game => 
+      game.scores.some(score => score.player.id === player.id)
+    );
+    
+    // Calculate statistics
+    let totalPoints = 0;
+    let gamesWon = 0;
+    let gamesLost = 0;
+    const gameHistory: Array<{
+      gameId: string;
+      gameType: string;
+      date: Date;
+      points: number;
+      position?: number;
+      result: 'win' | 'loss' | 'draw';
+    }> = [];
+    
+    playerGames.forEach(game => {
+      // Get player's score in this game
+      const playerScores = game.scores.filter(score => score.player.id === player.id);
+      const totalGamePoints = playerScores.reduce((sum, score) => sum + Number(score.points), 0);
+      
+      totalPoints += totalGamePoints;
+      
+      // Determine win/loss
+      let result: 'win' | 'loss' | 'draw' = 'draw';
+      let position: number | undefined = undefined;
+      
+      if (game.type === 'poker') {
+        result = totalGamePoints > 0 ? 'win' : totalGamePoints < 0 ? 'loss' : 'draw';
+      } else if (game.type === 'tienlen' && game.metadata?.winners && game.metadata?.losers) {
+        // Check if player is in winners
+        const isWinner = game.metadata.winners.some((w: any) => w.playerId === playerId);
+        const isLoser = game.metadata.losers.some((l: any) => l.playerId === playerId);
+        
+        result = isWinner ? 'win' : isLoser ? 'loss' : 'draw';
+        
+        // Find position
+        const allPlayers = [
+          ...(game.metadata.winners || []),
+          ...(game.metadata.losers || []),
+        ];
+        
+        const playerIndex = allPlayers.findIndex((p: any) => p.playerId === playerId);
+        if (playerIndex !== -1) {
+          position = playerIndex + 1;
+        }
+      }
+      
+      if (result === 'win') gamesWon++;
+      if (result === 'loss') gamesLost++;
+      
+      gameHistory.push({
+        gameId: game.id,
+        gameType: game.type,
+        date: game.createdAt,
+        points: totalGamePoints,
+        position,
+        result,
+      });
+    });
+    
+    // Sort game history by date (newest first)
+    gameHistory.sort((a, b) => b.date.getTime() - a.date.getTime());
+    
+    const totalGames = playerGames.length;
+    const winRate = totalGames > 0 ? (gamesWon / totalGames) * 100 : 0;
+    const averagePointsPerGame = totalGames > 0 ? totalPoints / totalGames : 0;
+    
+    return {
+      player,
+      totalGames,
+      gamesWon,
+      gamesLost,
+      winRate,
+      totalPoints,
+      averagePointsPerGame,
+      gameHistory,
+    };
+  }
+
+  async getGameDetails(
+    gameId: string,
+  ): Promise<{
+    game: Game;
+    players: Player[];
+    rounds: Round[];
+    scores: GameScore[];
+    summary: {
+      totalRounds: number;
+      playerScores: Array<{
+        playerId: string;
+        playerName: string;
+        totalPoints: number;
+        position: number;
+      }>;
+    };
+  }> {
+    const game = await this.gameRepository.findOne({
+      where: { id: gameId },
+      relations: ['players', 'rounds', 'scores', 'scores.player'],
+    });
+    
+    if (!game) {
+      throw new Error('Game not found');
+    }
+    
+    // Calculate player total scores
+    const playerScores = this.calculateTotalScores(game.scores);
+    
+    // Add position to player scores
+    const rankedPlayerScores = playerScores
+      .sort((a, b) => b.totalPoints - a.totalPoints)
+      .map((score, index) => ({
+        ...score,
+        position: index + 1,
+      }));
+    
+    return {
+      game,
+      players: game.players,
+      rounds: game.rounds,
+      scores: game.scores,
+      summary: {
+        totalRounds: game.rounds.length,
+        playerScores: rankedPlayerScores,
+      },
+    };
+  }
+}
