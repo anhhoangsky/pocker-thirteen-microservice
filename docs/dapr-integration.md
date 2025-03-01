@@ -95,10 +95,109 @@ Our Docker Compose configuration has been updated to include:
 
 ## Getting Started
 
-To run the application with Dapr:
+### Prerequisites
 
-1. Ensure Docker and Docker Compose are installed.
-2. Run `docker-compose up` to start all services with their Dapr sidecars.
+Before running the application with Dapr, ensure you have the following installed:
+
+1. **Docker and Docker Compose**: Required for containerized deployment
+2. **Node.js**: Version 16 or higher
+3. **npm**: For package management
+4. **Dapr CLI**: For local development with Dapr
+
+### Installing Dapr CLI
+
+To install the Dapr CLI, follow these steps:
+
+#### On Linux/macOS:
+```bash
+wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
+```
+
+#### On Windows (using PowerShell):
+```powershell
+powershell -Command "iwr -useb https://raw.githubusercontent.com/dapr/cli/master/install/install.ps1 | iex"
+```
+
+### Initializing Dapr
+
+After installing the Dapr CLI, initialize Dapr on your local machine:
+
+```bash
+dapr init
+```
+
+This command sets up the Dapr runtime on your local environment, including:
+- Installing the Dapr sidecar binaries
+- Setting up default components (Redis for state store and pub/sub)
+- Creating default configuration files
+
+### Running with Docker Compose (Recommended for Production)
+
+The easiest way to run the application with Dapr is using Docker Compose:
+
+1. Clone the repository and navigate to the project directory
+2. Create a `.env` file based on `.env.example`:
+   ```bash
+   cp .env.example .env
+   ```
+3. Edit the `.env` file to set your configuration values
+4. Build and start the services:
+   ```bash
+   docker-compose up --build
+   ```
+
+This will start all services with their Dapr sidecars, Redis, and PostgreSQL.
+
+### Running Locally for Development
+
+For local development, you can run each service individually with Dapr:
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Build the common library:
+   ```bash
+   cd apps/common
+   npm run build
+   cd ../..
+   ```
+
+3. Run each service with Dapr:
+
+   #### Telegram Bot Service:
+   ```bash
+   dapr run --app-id telegram-bot --app-port 3001 --components-path ./components npm run start:dev telegram-bot
+   ```
+
+   #### Game Management Service:
+   ```bash
+   dapr run --app-id game-management --app-port 3002 --components-path ./components npm run start:dev game-management
+   ```
+
+   #### Financial Management Service:
+   ```bash
+   dapr run --app-id financial-management --app-port 3003 --components-path ./components npm run start:dev financial-management
+   ```
+
+### Verifying Dapr Integration
+
+To verify that Dapr is working correctly:
+
+1. Check that all services are running:
+   ```bash
+   docker ps  # If using Docker Compose
+   # or
+   dapr list  # If running locally with Dapr CLI
+   ```
+
+2. Check the Dapr dashboard:
+   ```bash
+   dapr dashboard
+   ```
+
+3. Test service communication by interacting with the Telegram Bot
 
 ## Troubleshooting
 
@@ -107,3 +206,65 @@ If you encounter issues with Dapr:
 1. Check the Dapr logs: `docker logs <container_name>`
 2. Verify the Dapr components are correctly configured.
 3. Ensure Redis is running and accessible.
+
+## Development with Dapr
+
+### Debugging
+
+When developing with Dapr, you can use the following techniques for debugging:
+
+1. **Dapr Dashboard**: Access the Dapr dashboard to view components, configurations, and logs:
+   ```bash
+   dapr dashboard
+   ```
+
+2. **Dapr Logs**: View detailed logs for a specific Dapr instance:
+   ```bash
+   dapr logs -a <app-id>
+   ```
+
+3. **Component Validation**: Validate your Dapr components:
+   ```bash
+   dapr components --validate
+   ```
+
+### Testing with Dapr
+
+For testing services with Dapr:
+
+1. **Unit Testing**: Mock the Dapr client in your unit tests
+2. **Integration Testing**: Use Dapr's testing utilities to create test environments
+
+Example of mocking Dapr client in a test:
+
+```typescript
+// Mock DaprService
+const mockDaprService = {
+  publish: jest.fn(),
+  getState: jest.fn(),
+  saveState: jest.fn(),
+  invokeMethod: jest.fn(),
+};
+
+// In your test
+describe('YourService', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should publish message', async () => {
+    // Setup
+    mockDaprService.publish.mockResolvedValue(undefined);
+    
+    // Test
+    await yourService.someMethod();
+    
+    // Assert
+    expect(mockDaprService.publish).toHaveBeenCalledWith(
+      'pubsub',
+      'your-topic',
+      expect.any(Object)
+    );
+  });
+});
+```

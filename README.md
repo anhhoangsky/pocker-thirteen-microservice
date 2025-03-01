@@ -66,10 +66,33 @@ The system is built using NestJS and follows a microservices architecture with t
 3. Development
 
    ```bash
-   # Start individual services
+   # Start individual services (without Dapr)
    npm run start:telegram-bot
    npm run start:game-management
    npm run start:financial-management
+   
+   # Or start all services together (without Dapr)
+   npm run start:dev
+   ```
+
+   With Dapr:
+   ```bash
+   # Initialize Dapr (first time only)
+   npm run dapr:init
+   
+   # Build common library
+   npm run dapr:build:common
+   
+   # Start all services with Dapr
+   npm run dapr:start:dev
+   
+   # Or start individual services with Dapr
+   npm run dapr:start:telegram-bot
+   npm run dapr:start:game-management
+   npm run dapr:start:financial-management
+   
+   # Open Dapr dashboard
+   npm run dapr:dashboard
    ```
 
 4. Docker Deployment
@@ -81,6 +104,40 @@ The system is built using NestJS and follows a microservices architecture with t
    # Stop services
    npm run docker:down
    ```
+
+## Dapr Integration
+
+This project uses Dapr (Distributed Application Runtime) to enhance service-to-service communication and add resilience to the system.
+
+### Key Benefits
+- Simplified service-to-service communication
+- Built-in resilience with automatic retries and circuit breaking
+- State management for distributed applications
+- Pub/sub messaging patterns for event-driven architecture
+
+### Running with Dapr
+For detailed instructions on running the application with Dapr, see the [Dapr Integration Guide](docs/dapr-integration.md).
+
+Quick start with Docker Compose:
+```bash
+# Build and start all services with Dapr
+docker-compose up --build
+```
+
+Quick start for local development:
+```bash
+# Initialize Dapr (first time only)
+npm run dapr:init
+
+# Build common library
+npm run dapr:build:common
+
+# Start all services with Dapr
+npm run dapr:start:dev
+
+# Open Dapr dashboard
+npm run dapr:dashboard
+```
 
 ## API Documentation
 
@@ -181,9 +238,11 @@ describe('SomeService', () => {
 - Real-time game updates and notifications
 
 ### Technical Improvements
-- Enhanced service discovery and resilience
-- Implementing additional Dapr building blocks
-- Scaling and performance optimizations
+- ✅ Enhanced service communication with Dapr integration
+- ✅ Improved resilience with automatic retries and circuit breaking
+- ✅ Distributed state management with Redis
+- Future: Enhanced observability with distributed tracing
+- Future: Scaling and performance optimizations
 
 ### Reporting System
 - Enhanced financial reporting capabilities
@@ -213,5 +272,3 @@ describe('SomeService', () => {
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-
